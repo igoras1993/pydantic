@@ -279,7 +279,8 @@ class ModelMetaclass(ABCMeta):
             '__json_encoder__': staticmethod(json_encoder),
             '__custom_root_type__': _custom_root_type,
             '__private_attributes__': {**base_private_attributes, **private_attributes},
-            '__slots__': slots | private_attributes.keys(),
+            '__slots__': slots
+            | {key for key in private_attributes.keys() if key not in config.exclude_private_from_slots},
             '__hash__': hash_func,
             '__class_vars__': class_vars,
             **{n: v for n, v in namespace.items() if n not in exclude_from_namespace},

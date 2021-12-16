@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
 
 from .typing import AnyCallable
 from .utils import GetterDict
@@ -66,6 +66,8 @@ class BaseConfig:
     copy_on_model_validation: bool = True
     # whether `Union` should check all allowed types before even trying to coerce
     smart_union: bool = False
+    # names of private attributes to not be included in __slots__
+    exclude_private_from_slots: Iterable[str] = ()
 
     @classmethod
     def get_field_info(cls, name: str) -> Dict[str, Any]:
@@ -113,6 +115,9 @@ def inherit_config(self_config: 'ConfigType', parent_config: 'ConfigType', **nam
         **getattr(self_config, 'json_encoders', {}),
         **namespace.get('json_encoders', {}),
     }
+
+    # do not inherit config on excluded slots
+    namespace['exclude_private_from_slots'] = getattr(self_config, 'exclude_private_from_slots', ())
 
     return type('Config', base_classes, namespace)
 
